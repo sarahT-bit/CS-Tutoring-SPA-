@@ -5,9 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>CS Tutoring Platform</title>
 <style>
-  * {
-    box-sizing: border-box;
-  }
   body, html {
     margin: 0; padding: 0; height: 100%;
     font-family: Arial, sans-serif;
@@ -24,11 +21,16 @@
   main {
     height: calc(100vh - 68px);
     padding: 1rem 2rem;
-    display: flex;
-    flex-direction: column;
   }
-
-  /* ----- Selection Page ----- */
+  /* Hide all sections by default */
+  section {
+    display: none;
+  }
+  /* Visible section */
+  section.active {
+    display: block;
+  }
+  /* Step 1 Styles */
   #selectionPage {
     max-width: 600px;
     margin: auto;
@@ -79,18 +81,16 @@
   #submitProblem:hover {
     background-color: #388e3c;
   }
-
-  /* ----- Loading Screen ----- */
+  /* Step 2 Loading */
   #loadingScreen {
-    flex-grow: 1;
+    font-size: 1.8rem;
+    color: #3f51b5;
+    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 1.8rem;
-    color: #3f51b5;
   }
-
-  /* ----- Tutor Session ----- */
+  /* Step 3 Tutor Session */
   #tutorSession {
     display: flex;
     gap: 1rem;
@@ -109,14 +109,13 @@
     flex-direction: column;
     height: 100%;
   }
-
-  /* Text editor & Code editor styles */
+  /* Editors */
   #textEditor, #codeEditor {
     flex: 1;
     display: flex;
     flex-direction: column;
   }
-  #textEditor label, #codeEditor label, #whiteboardContainer label {
+  label {
     font-weight: bold;
     margin-bottom: 0.3rem;
   }
@@ -134,8 +133,7 @@
     color: #abb2bf;
     border: none;
   }
-
-  /* Whiteboard container */
+  /* Whiteboard */
   #whiteboardContainer {
     flex: 0.7;
     display: flex;
@@ -167,8 +165,7 @@
   #whiteboardControls button:hover {
     background-color: #283593;
   }
-
-  /* Video + chat container */
+  /* Videos + Chat */
   #videoChatContainer {
     flex-grow: 1;
     display: flex;
@@ -255,41 +252,6 @@
   #chatInputArea button:hover {
     background-color: #283593;
   }
-
-  /* Hide sections */
-  .hidden {
-    display: none;
-  }
-
-  /* Responsive */
-  @media (max-width: 900px) {
-    main {
-      padding: 1rem;
-    }
-    #tutorSession {
-      flex-direction: column;
-      height: auto;
-    }
-    #leftPanel, #rightPanel {
-      flex: none;
-      height: 350px;
-    }
-    #whiteboardContainer {
-      flex: 1;
-    }
-    #videos {
-      flex-direction: column;
-      height: 180px;
-    }
-    #studentVideo, #tutorVideo {
-      flex: none;
-      height: 80px;
-      font-size: 1rem;
-    }
-    #chatSection {
-      height: 250px;
-    }
-  }
 </style>
 </head>
 <body>
@@ -298,7 +260,7 @@
 </header>
 <main>
   <!-- Step 1: Selection Page -->
-  <section id="selectionPage">
+  <section id="selectionPage" class="active">
     <div class="option-group">
       <h2>Select a Topic <span style="color:#d32f2f">*</span></h2>
       <div id="topics">
@@ -332,12 +294,12 @@
   </section>
 
   <!-- Step 2: Loading Screen -->
-  <section id="loadingScreen" class="hidden">
+  <section id="loadingScreen">
     Linking you to a tutor...
   </section>
 
   <!-- Step 3: Tutor Session -->
-  <section id="tutorSession" class="hidden">
+  <section id="tutorSession">
     <div id="leftPanel">
       <div id="textEditor">
         <label for="textArea">Text Editor</label>
@@ -415,7 +377,6 @@
   // --- Step 1: Language selection (optional, only one) ---
   languagesDiv.addEventListener('click', e => {
     if (e.target.tagName === 'BUTTON') {
-      // Toggle off if already selected
       if (e.target.classList.contains('selected')) {
         e.target.classList.remove('selected');
         selectedLanguage = null;
@@ -438,110 +399,9 @@
       alert('Please describe your problem.');
       return;
     }
-    // Hide step 1, show loading screen
-    selectionPage.classList.add('hidden');
-    loadingScreen.classList.remove('hidden');
 
-    // Simulate tutor linking delay
-    setTimeout(() => {
-      loadingScreen.classList.add('hidden');
-      tutorSession.classList.remove('hidden');
-      initializeTutorSession();
-    }, 3000); // 3 seconds loading simulation
-  });
+    // Hide Step 1
 
-  // --- Whiteboard Setup ---
-  const ctx = whiteboard.getContext('2d');
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-  ctx.lineWidth = 2;
-  ctx.strokeStyle = '#000';
-
-  function getCanvasPos(e) {
-    const rect = whiteboard.getBoundingClientRect();
-    let x, y;
-    if(e.touches){
-      x = e.touches[0].clientX - rect.left;
-      y = e.touches[0].clientY - rect.top;
-    } else {
-      x = e.clientX - rect.left;
-      y = e.clientY - rect.top;
-    }
-    return { x, y };
-  }
-
-  whiteboard.addEventListener('mousedown', startDrawing);
-  whiteboard.addEventListener('touchstart', startDrawing);
-
-  whiteboard.addEventListener('mousemove', draw);
-  whiteboard.addEventListener('touchmove', draw);
-
-  whiteboard.addEventListener('mouseup', endDrawing);
-  whiteboard.addEventListener('mouseout', endDrawing);
-  whiteboard.addEventListener('touchend', endDrawing);
-  whiteboard.addEventListener('touchcancel', endDrawing);
-
-  function startDrawing(e) {
-    e.preventDefault();
-    isDrawing = true;
-    lastPos = getCanvasPos(e);
-  }
-
-  function draw(e) {
-    if (!isDrawing) return;
-    e.preventDefault();
-    const pos = getCanvasPos(e);
-    ctx.beginPath();
-    ctx.moveTo(lastPos.x, lastPos.y);
-    ctx.lineTo(pos.x, pos.y);
-    ctx.stroke();
-    lastPos = pos;
-  }
-
-  function endDrawing(e) {
-    if (!isDrawing) return;
-    e.preventDefault();
-    isDrawing = false;
-    // Save current canvas state for undo
-    whiteboardHistory.push(ctx.getImageData(0, 0, whiteboard.width, whiteboard.height));
-    if(whiteboardHistory.length > 50) whiteboardHistory.shift(); // limit history length
-  }
-
-  undoWhiteboardBtn.addEventListener('click', () => {
-    if (whiteboardHistory.length > 0) {
-      whiteboardHistory.pop(); // remove last action
-      const lastImage = whiteboardHistory.length > 0 ? whiteboardHistory[whiteboardHistory.length - 1] : null;
-      if (lastImage) {
-        ctx.putImageData(lastImage, 0, 0);
-      } else {
-        ctx.clearRect(0, 0, whiteboard.width, whiteboard.height);
-      }
-    }
-  });
-
-  clearWhiteboardBtn.addEventListener('click', () => {
-    ctx.clearRect(0, 0, whiteboard.width, whiteboard.height);
-    whiteboardHistory = [];
-  });
-
-  // --- Chat system ---
-  function appendMessage(text, sender) {
-    const msgDiv = document.createElement('div');
-    msgDiv.classList.add('chatMessage', sender);
-    msgDiv.textContent = text;
-    chatMessages.appendChild(msgDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  }
-
-  sendChatBtn.addEventListener('click', sendMessage);
-  chatInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      sendMessage();
-    }
-  });
-
-  function sendMessage() {
-    const text = chat
 
 
 
