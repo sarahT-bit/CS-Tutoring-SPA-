@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -30,7 +31,6 @@
 
   /* ----- Selection Page ----- */
   #selectionPage {
-    flex-grow: 1;
     max-width: 600px;
     margin: auto;
   }
@@ -93,7 +93,6 @@
 
   /* ----- Tutor Session ----- */
   #tutorSession {
-    flex-grow: 1;
     display: flex;
     gap: 1rem;
     height: 100%;
@@ -299,7 +298,7 @@
   CS Tutoring Platform
 </header>
 <main>
-  <!-- Selection Page -->
+  <!-- Step 1: Selection Page -->
   <section id="selectionPage">
     <div class="option-group">
       <h2>Select a Topic <span style="color:#d32f2f">*</span></h2>
@@ -333,12 +332,12 @@
     <button id="submitProblem">Submit Problem</button>
   </section>
 
-  <!-- Loading Screen -->
+  <!-- Step 2: Loading Screen -->
   <section id="loadingScreen" class="hidden">
     Linking you to a tutor...
   </section>
 
-  <!-- Tutor Session -->
+  <!-- Step 3: Tutor Session -->
   <section id="tutorSession" class="hidden">
     <div id="leftPanel">
       <div id="textEditor">
@@ -405,10 +404,145 @@
   let isDrawing = false;
   let lastPos = {x: 0, y: 0};
 
-  // Handle topic selection (only one)
+  // --- Step 1: Topic selection (only one) ---
   topicsDiv.addEventListener('click', e => {
-    if(e.target.tagName === 'BUTTON'){
+    if (e.target.tagName === 'BUTTON') {
       Array.from(topicsDiv.children).forEach(btn => btn.classList.remove('selected'));
       e.target.classList.add('selected');
+      selectedTopic = e.target.getAttribute('data-topic');
+    }
+  });
+
+  // --- Step 1: Language selection (optional, only one) ---
+  languagesDiv.addEventListener('click', e => {
+    if (e.target.tagName === 'BUTTON') {
+      // Toggle off if already selected
+      if (e.target.classList.contains('selected')) {
+        e.target.classList.remove('selected');
+        selectedLanguage = null;
+      } else {
+        Array.from(languagesDiv.children).forEach(btn => btn.classList.remove('selected'));
+        e.target.classList.add('selected');
+        selectedLanguage = e.target.getAttribute('data-lang');
+      }
+    }
+  });
+
+  // --- Step 1: Submit problem ---
+  submitProblemBtn.addEventListener('click', () => {
+    const problemText = problemDescription.value.trim();
+    if (!selectedTopic) {
+      alert('Please select a topic.');
+      return;
+    }
+    if (!problemText) {
+      alert('Please describe your problem.');
+      return;
+    }
+    // Hide step 1, show loading screen
+    selectionPage.classList.add('hidden');
+    loadingScreen.classList.remove('hidden');
+
+    // Simulate tutor linking delay
+    setTimeout(() => {
+      loadingScreen.classList.add('hidden');
+      tutorSession.classList.remove('hidden');
+      initializeTutorSession();
+    }, 3000); // 3 seconds loading simulation
+  });
+
+  // --- Whiteboard Setup ---
+  const ctx = whiteboard.getContext('2d');
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = '#000';
+
+  function getCanvasPos(e) {
+    const rect = whiteboard.getBoundingClientRect();
+    let x, y;
+    if(e.touches){
+      x = e.touches[0].clientX - rect.left;
+      y = e.touches[0].clientY - rect.top;
+    } else {
+      x = e.clientX - rect.left;
+      y = e.clientY - rect.top;
+    }
+    return { x, y };
+  }
+
+  whiteboard.addEventListener('mousedown', startDrawing);
+  whiteboard.addEventListener('touchstart', startDrawing);
+
+  whiteboard.addEventListener('mousemove', draw);
+  whiteboard.addEventListener('touchmove', draw);
+
+  whiteboard.addEventListener('mouseup', endDrawing);
+  whiteboard.addEventListener('mouseout', endDrawing);
+  whiteboard.addEventListener('touchend', endDrawing);
+  whiteboard.addEventListener('touchcancel', endDrawing);
+
+  function startDrawing(e) {
+    e.preventDefault();
+    isDrawing = true;
+    lastPos = getCanvasPos(e);
+  }
+
+  function draw(e) {
+    if (!isDrawing) return;
+    e.preventDefault();
+    const pos = getCanvasPos(e);
+    ctx.beginPath();
+    ctx.moveTo(lastPos.x, lastPos.y);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+    lastPos = pos;
+  }
+
+  function endDrawing(e) {
+    if (!isDrawing) return;
+    e.preventDefault();
+    isDrawing = false;
+    // Save current canvas state for undo
+    whiteboardHistory.push(ctx.getImageData(0, 0, whiteboard.width, whiteboard.height));
+    if(whiteboardHistory.length > 50) whiteboardHistory.shift(); // limit history length
+  }
+
+  undoWhiteboardBtn.addEventListener('click', () => {
+    if (whiteboardHistory.length > 0) {
+      whiteboardHistory.pop(); // remove last action
+      const lastImage = whiteboardHistory.length > 0 ? whiteboardHistory[whiteboardHistory.length - 1] : null;
+      if (lastImage) {
+        ctx.putImageData(lastImage, 0, 0);
+      } else {
+        ctx.clearRect(0, 0, whiteboard.width, whiteboard.height);
+      }
+    }
+  });
+
+  clearWhiteboardBtn.addEventListener('click', () => {
+    ctx.clearRect(0, 0, whiteboard.width, whiteboard.height);
+    whiteboardHistory = [];
+  });
+
+  // --- Chat system ---
+  function appendMessage(text, sender) {
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('chatMessage', sender);
+    msgDiv.textContent = text;
+    chatMessages.appendChild(msgDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  sendChatBtn.addEventListener('click', sendMessage);
+  chatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      sendMessage();
+    }
+  });
+
+  function sendMessage() {
+    const text = chat
+```
 
 
