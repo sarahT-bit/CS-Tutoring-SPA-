@@ -3,315 +3,338 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>CS Tutor Platform</title>
+<title>CS Tutoring Platform</title>
 <style>
   * {
     box-sizing: border-box;
   }
-  body {
+  body, html {
+    margin: 0; padding: 0; height: 100%;
     font-family: Arial, sans-serif;
-    margin: 0; padding: 0;
-    background: #f5f5f5;
-    display: flex; flex-direction: column; min-height: 100vh;
+    background: #f0f2f5;
   }
   header {
-    background: #3f51b5;
+    background-color: #3f51b5;
     color: white;
-    padding: 1rem 2rem;
-    font-size: 1.5rem;
+    padding: 1rem;
     text-align: center;
+    font-size: 1.8rem;
+    font-weight: bold;
   }
   main {
-    flex: 1;
+    height: calc(100vh - 68px);
     padding: 1rem 2rem;
+    display: flex;
+    flex-direction: column;
   }
-  .hidden {
-    display: none;
+
+  /* ----- Selection Page ----- */
+  #selectionPage {
+    flex-grow: 1;
+    max-width: 600px;
+    margin: auto;
   }
-  .topics, .languages {
-    margin-bottom: 1rem;
+  h2 {
+    margin-bottom: 0.4rem;
   }
-  .topics button, .languages button {
-    margin: 0.25rem;
+  .option-group {
+    margin-bottom: 1.5rem;
+  }
+  .option-group button {
+    margin: 0.2rem 0.3rem 0.2rem 0;
     padding: 0.5rem 1rem;
     border: none;
-    background: #3f51b5;
+    border-radius: 5px;
+    background-color: #3f51b5;
     color: white;
     cursor: pointer;
-    border-radius: 4px;
     transition: background-color 0.3s ease;
   }
-  .topics button.selected, .languages button.selected {
-    background: #283593;
+  .option-group button.selected {
+    background-color: #283593;
   }
-  .topics button:hover, .languages button:hover {
-    background: #283593;
+  .option-group button:hover:not(.selected) {
+    background-color: #5c6bc0;
   }
-  textarea#problem {
+  textarea#problemDescription {
     width: 100%;
-    min-height: 80px;
-    resize: vertical;
+    min-height: 120px;
     font-size: 1rem;
     padding: 0.5rem;
+    resize: vertical;
+    border-radius: 5px;
+    border: 1px solid #ccc;
   }
-  button#submitProblem {
-    margin-top: 0.5rem;
-    padding: 0.7rem 1.5rem;
-    font-size: 1rem;
-    background: #4caf50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  button#submitProblem:hover {
-    background: #388e3c;
-  }
-
-  /* Linking screen */
-  #linkingScreen {
-    text-align: center;
-    font-size: 1.3rem;
-    margin-top: 2rem;
-  }
-
-  /* Tutor session layout */
-  #tutorSession {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
+  #submitProblem {
     margin-top: 1rem;
-  }
-  #leftPanel, #rightPanel {
-    background: white;
+    background-color: #4caf50;
+    border: none;
+    color: white;
+    padding: 0.8rem 1.5rem;
+    font-size: 1.1rem;
     border-radius: 6px;
-    padding: 1rem;
-    box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s ease;
+  }
+  #submitProblem:hover {
+    background-color: #388e3c;
   }
 
+  /* ----- Loading Screen ----- */
+  #loadingScreen {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.8rem;
+    color: #3f51b5;
+  }
+
+  /* ----- Tutor Session ----- */
+  #tutorSession {
+    flex-grow: 1;
+    display: flex;
+    gap: 1rem;
+    height: 100%;
+  }
   #leftPanel {
-    flex: 1 1 60%;
+    flex: 2;
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    height: 700px; /* fixed height to better distribute space */
+    height: 100%;
   }
   #rightPanel {
-    flex: 1 1 35%;
+    flex: 1;
     display: flex;
     flex-direction: column;
-    height: 700px; /* keep right panel height equal */
+    height: 100%;
   }
 
-  /* Text Editor */
-  #textEditor {
-    flex: 2; /* more space */
+  /* Text editor & Code editor styles */
+  #textEditor, #codeEditor {
+    flex: 1;
     display: flex;
     flex-direction: column;
   }
-  #textEditor textarea {
-    flex: 1;
-    font-family: monospace;
-    font-size: 1rem;
-    padding: 0.5rem;
-    resize: none;
-  }
-  #textEditor label {
-    margin-bottom: 0.25rem;
+  #textEditor label, #codeEditor label, #whiteboardContainer label {
     font-weight: bold;
+    margin-bottom: 0.3rem;
   }
-
-  /* Code Editor */
-  #codeEditor {
-    flex: 2; /* more space */
-    display: flex;
-    flex-direction: column;
-  }
-  #codeEditor textarea {
-    flex: 1;
+  textarea#textArea, textarea#codeArea {
+    flex-grow: 1;
+    resize: none;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    padding: 0.6rem;
     font-family: monospace;
     font-size: 1rem;
-    padding: 0.5rem;
-    background: #282c34;
+  }
+  textarea#codeArea {
+    background-color: #282c34;
     color: #abb2bf;
     border: none;
-    resize: none;
-  }
-  #codeEditor label {
-    margin-bottom: 0.25rem;
-    font-weight: bold;
   }
 
-  /* Whiteboard */
+  /* Whiteboard container */
   #whiteboardContainer {
-    flex: 1; /* less space */
+    flex: 0.7;
     display: flex;
     flex-direction: column;
   }
-  #whiteboardContainer label {
-    font-weight: bold;
-    margin-bottom: 0.25rem;
-  }
-  #whiteboard {
+  canvas#whiteboard {
     border: 1px solid #ccc;
-    background: white;
-    flex: 1;
+    border-radius: 6px;
+    flex-grow: 1;
+    background-color: white;
     cursor: crosshair;
-    border-radius: 4px;
   }
   #whiteboardControls {
-    margin-top: 0.5rem;
+    margin-top: 0.4rem;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    gap: 0.6rem;
   }
   #whiteboardControls button {
-    background: #3f51b5;
+    flex-grow: 1;
+    background-color: #3f51b5;
     border: none;
     color: white;
-    padding: 0.3rem 0.7rem;
-    border-radius: 4px;
+    padding: 0.4rem 0;
+    font-size: 1rem;
+    border-radius: 5px;
     cursor: pointer;
-    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
   }
   #whiteboardControls button:hover {
-    background: #283593;
+    background-color: #283593;
   }
 
-  /* Video and chat panel */
+  /* Video + chat container */
   #videoChatContainer {
-    flex: 1;
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
-    height: 100%;
-    border: 1px solid #ddd;
     border-radius: 6px;
-    overflow: hidden;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
     background: white;
+    overflow: hidden;
   }
-  #videoContainer {
-    position: relative;
-    flex: 1 1 60%;
-    background: black;
+  #videos {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background-color: #111;
+    flex: 1 0 60%;
+    border-bottom: 1px solid #ccc;
   }
-  video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  #videoPlaceholder {
+  #studentVideo, #tutorVideo {
+    flex: 1;
+    border-radius: 6px;
+    background-color: #222;
     color: white;
-    font-size: 1.5rem;
-    text-align: center;
-    padding-top: 180px;
+    font-size: 1.3rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
   }
-  #videoSmall {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    width: 25%;
-    height: 25%;
-    border: 2px solid white;
-    border-radius: 4px;
-    object-fit: cover;
-    background: black;
-  }
-
-  #chatBox {
-    flex: 1 1 40%;
-    border-top: 1px solid #ddd;
+  #chatSection {
+    flex: 1 0 40%;
     display: flex;
     flex-direction: column;
-  }
-  #messages {
-    flex: 1;
-    overflow-y: auto;
     padding: 0.5rem;
-    background: #f0f0f0;
+  }
+  #chatMessages {
+    flex-grow: 1;
+    background-color: #f7f7f7;
+    border-radius: 6px;
+    padding: 0.5rem;
+    overflow-y: auto;
     font-size: 0.9rem;
   }
-  #messages .message {
-    margin-bottom: 0.5rem;
+  .chatMessage {
+    margin: 0.3rem 0;
+    padding: 0.5rem 0.8rem;
+    max-width: 75%;
+    border-radius: 12px;
+    word-wrap: break-word;
   }
-  #messages .message.student {
-    text-align: right;
-    color: #1a237e;
-  }
-  #messages .message.tutor {
-    text-align: left;
-    color: #d32f2f;
-  }
-  #chatInput {
-    display: flex;
-    border-top: 1px solid #ccc;
-  }
-  #chatInput input {
-    flex: 1;
-    padding: 0.5rem;
-    border: none;
-    font-size: 1rem;
-  }
-  #chatInput button {
-    background: #3f51b5;
-    border: none;
+  .chatMessage.student {
+    background-color: #3f51b5;
     color: white;
-    padding: 0 1rem;
-    cursor: pointer;
-    font-size: 1rem;
+    margin-left: auto;
+    text-align: right;
   }
-  #chatInput button:hover {
-    background: #283593;
+  .chatMessage.tutor {
+    background-color: #d32f2f;
+    color: white;
+    margin-right: auto;
+    text-align: left;
+  }
+  #chatInputArea {
+    margin-top: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+  }
+  #chatInputArea input {
+    flex-grow: 1;
+    padding: 0.6rem 0.8rem;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+  #chatInputArea button {
+    background-color: #3f51b5;
+    color: white;
+    border: none;
+    padding: 0 1rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  #chatInputArea button:hover {
+    background-color: #283593;
+  }
+
+  /* Hide sections */
+  .hidden {
+    display: none;
   }
 
   /* Responsive */
   @media (max-width: 900px) {
+    main {
+      padding: 1rem;
+    }
     #tutorSession {
       flex-direction: column;
-    }
-    #leftPanel, #rightPanel {
-      flex: 1 1 100%;
       height: auto;
     }
-    #videoChatContainer {
-      height: 300px;
+    #leftPanel, #rightPanel {
+      flex: none;
+      height: 350px;
+    }
+    #whiteboardContainer {
+      flex: 1;
+    }
+    #videos {
+      flex-direction: column;
+      height: 180px;
+    }
+    #studentVideo, #tutorVideo {
+      flex: none;
+      height: 80px;
+      font-size: 1rem;
+    }
+    #chatSection {
+      height: 250px;
     }
   }
 </style>
 </head>
 <body>
 <header>
-  CS Tutor Platform
+  CS Tutoring Platform
 </header>
 <main>
   <!-- Selection Page -->
   <section id="selectionPage">
-    <h2>Select a Topic</h2>
-    <div class="topics" id="topicsContainer">
-      <button data-topic="Data Structures">Data Structures</button>
-      <button data-topic="Intro To Theory Comp.">Intro To Theory Comp.</button>
-      <button data-topic="Discrete Structures">Discrete Structures</button>
-      <button data-topic="Algorithms">Algorithms</button>
-      <button data-topic="Operating Systems">Operating Systems</button>
-      <button data-topic="Computer Networks">Computer Networks</button>
+    <div class="option-group">
+      <h2>Select a Topic <span style="color:#d32f2f">*</span></h2>
+      <div id="topics">
+        <button data-topic="Operating Systems">Operating Systems</button>
+        <button data-topic="Data Structures">Data Structures</button>
+        <button data-topic="Algorithms">Algorithms</button>
+        <button data-topic="Discrete Mathematics">Discrete Mathematics</button>
+        <button data-topic="Computer Networks">Computer Networks</button>
+        <button data-topic="Intro to Theory of Computation">Intro to Theory of Computation</button>
+      </div>
     </div>
 
-    <h2>Select Programming Language (optional)</h2>
-    <div class="languages" id="languagesContainer">
-      <button data-language="Python">Python</button>
-      <button data-language="Java">Java</button>
-      <button data-language="C++">C++</button>
-      <button data-language="JavaScript">JavaScript</button>
-      <button data-language="C#">C#</button>
-      <button data-language="Go">Go</button>
+    <div class="option-group">
+      <h2>Select Programming Language (Optional)</h2>
+      <div id="languages">
+        <button data-lang="Python">Python</button>
+        <button data-lang="Java">Java</button>
+        <button data-lang="C++">C++</button>
+        <button data-lang="JavaScript">JavaScript</button>
+        <button data-lang="C#">C#</button>
+        <button data-lang="Go">Go</button>
+      </div>
     </div>
 
-    <h2>Describe your problem</h2>
-    <textarea id="problem" placeholder="Type your problem here..."></textarea>
+    <div class="option-group">
+      <h2>Describe Your Problem <span style="color:#d32f2f">*</span></h2>
+      <textarea id="problemDescription" placeholder="Describe your problem here..."></textarea>
+    </div>
+
     <button id="submitProblem">Submit Problem</button>
   </section>
 
-  <!-- Linking Screen -->
-  <section id="linkingScreen" class="hidden">
+  <!-- Loading Screen -->
+  <section id="loadingScreen" class="hidden">
     Linking you to a tutor...
   </section>
 
@@ -330,22 +353,22 @@
         <label for="whiteboard">Whiteboard</label>
         <canvas id="whiteboard" width="600" height="150"></canvas>
         <div id="whiteboardControls">
-          <button id="clearWhiteboard">Clear</button>
           <button id="undoWhiteboard">Undo</button>
+          <button id="clearWhiteboard">Clear</button>
         </div>
       </div>
     </div>
     <div id="rightPanel">
       <div id="videoChatContainer">
-        <div id="videoContainer">
-          <div id="videoPlaceholder">Tutor and Student video here</div>
-          <video id="videoSmall" autoplay muted playsinline></video>
+        <div id="videos">
+          <div id="studentVideo">Student Video</div>
+          <div id="tutorVideo">Tutor Video</div>
         </div>
-        <div id="chatBox">
-          <div id="messages"></div>
-          <div id="chatInput">
-            <input type="text" id="chatMessage" placeholder="Type a message..." />
-            <button id="sendMessage">Send</button>
+        <div id="chatSection">
+          <div id="chatMessages"></div>
+          <div id="chatInputArea">
+            <input type="text" id="chatInput" placeholder="Type a message..." />
+            <button id="sendChatBtn">Send</button>
           </div>
         </div>
       </div>
@@ -354,60 +377,38 @@
 </main>
 
 <script>
-  // Elements
-  const topicsContainer = document.getElementById('topicsContainer');
-  const languagesContainer = document.getElementById('languagesContainer');
-  const submitBtn = document.getElementById('submitProblem');
-  const problemInput = document.getElementById('problem');
+  // Elements references
   const selectionPage = document.getElementById('selectionPage');
-  const linkingScreen = document.getElementById('linkingScreen');
+  const loadingScreen = document.getElementById('loadingScreen');
   const tutorSession = document.getElementById('tutorSession');
-  const messagesDiv = document.getElementById('messages');
-  const chatInput = document.getElementById('chatMessage');
-  const sendMessageBtn = document.getElementById('sendMessage');
-  const videoPlaceholder = document.getElementById('videoPlaceholder');
-  const videoSmall = document.getElementById('videoSmall');
+
+  const topicsDiv = document.getElementById('topics');
+  const languagesDiv = document.getElementById('languages');
+  const problemDescription = document.getElementById('problemDescription');
+  const submitProblemBtn = document.getElementById('submitProblem');
+
   const textArea = document.getElementById('textArea');
   const codeArea = document.getElementById('codeArea');
+
   const whiteboard = document.getElementById('whiteboard');
-  const clearWhiteboardBtn = document.getElementById('clearWhiteboard');
   const undoWhiteboardBtn = document.getElementById('undoWhiteboard');
+  const clearWhiteboardBtn = document.getElementById('clearWhiteboard');
+
+  const chatMessages = document.getElementById('chatMessages');
+  const chatInput = document.getElementById('chatInput');
+  const sendChatBtn = document.getElementById('sendChatBtn');
 
   // State
   let selectedTopic = null;
   let selectedLanguage = null;
-  let chatMessages = [];
   let whiteboardHistory = [];
+  let isDrawing = false;
+  let lastPos = {x: 0, y: 0};
 
-  // Topic and Language Selection
-  topicsContainer.addEventListener('click', e => {
+  // Handle topic selection (only one)
+  topicsDiv.addEventListener('click', e => {
     if(e.target.tagName === 'BUTTON'){
-      // Deselect others
-      Array.from(topicsContainer.children).forEach(btn => btn.classList.remove('selected'));
+      Array.from(topicsDiv.children).forEach(btn => btn.classList.remove('selected'));
       e.target.classList.add('selected');
-      selectedTopic = e.target.dataset.topic;
-    }
-  });
-  languagesContainer.addEventListener('click', e => {
-    if(e.target.tagName === 'BUTTON'){
-      // Deselect others
-      Array.from(languagesContainer.children).forEach(btn => btn.classList.remove('selected'));
-      e.target.classList.add('selected');
-      selectedLanguage = e.target.dataset.language;
-    }
-  });
 
-  // Submit Problem
-  submitBtn.addEventListener('click', () => {
-    const problemText = problemInput.value.trim();
-    if(!selectedTopic){
-      alert('Please select a topic.');
-      return;
-    }
-    if(!problemText){
-      alert('Please describe your problem.');
-      return;
-    }
-    // Show linking screen
-    selectionPage.classList.add('
 
